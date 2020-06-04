@@ -1,23 +1,43 @@
 'use strict';
 
-var SwaggerExpress = require('swagger-express-mw');
-var app = require('express')();
+const express = require('express'),
+  bodyParser = require('body-parser'),
+  app = express();
+
+const logger = require('./utils/logger');
+const server = require('http').Server(app);
+
+//se llama  a libreria encargada de los cors
+const cors = require('cors');
+//se llama swagger express mw para visualizar la documentacion de yaml
+const SwaggerExpress = require('swagger-express-mw');
 module.exports = app; // for testing
 
-var config = {
+let config = {
   appRoot: __dirname // required config
 };
 
-SwaggerExpress.create(config, function(err, swaggerExpress) {
+const { port, host } = require('./config');
+
+// Configuracion swagger 3.0
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
+const swaggerUi = require('swagger-ui-express');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+const dateFormat = require('dateformat');
+const now = new Date();
+
+SwaggerExpress.create(config, function (err, swaggerExpress) {
   if (err) { throw err; }
 
   // install middleware
+  logger.info(dateFormat((now, 'default')) + '------------------->Inicializando servidor en ' + host + ':' + port);
   swaggerExpress.register(app);
 
-  var port = process.env.PORT || 10010;
-  app.listen(port);
+  //app uso de cors, se permiten todos los tipos de origenes
+  app.use(cors({ methods: ["*"], credentials: false, origin: "*" }));
+  server.listen(port, host);
 
-  if (swaggerExpress.runner.swagger.paths['/hello']) {
-    console.log('try this:\ncurl http://127.0.0.1:' + port + '/hello?name=Scott');
-  }
 });
