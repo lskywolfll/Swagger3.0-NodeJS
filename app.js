@@ -10,10 +10,10 @@ const server = require('http').Server(app);
 const cors = require('cors');
 //se llama swagger express mw para visualizar la documentacion de yaml
 const SwaggerExpress = require('swagger-express-mw');
-module.exports = app; // for testing
+module.exports = app;
 
 let config = {
-  appRoot: __dirname // required config
+  appRoot: __dirname
 };
 
 const { port, host } = require('./config');

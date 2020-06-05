@@ -9,7 +9,6 @@ module.exports = createLogger({
     transports: [
         new transports.Console({
             level: 'debug'
-
         }),
         new transports.File({
             maxsize: 5120000,
